@@ -44,7 +44,7 @@ from keras import initializers
 
 from gym.envs.toy_text import discrete
 
-
+#The following takes in the states and rewards for the agent and graphs the results
 def graphs(states,rewards):  
   fig, axes = plt.subplots(1, 2, figsize=(20, 8))
   labels = ['s[0]: susceptibles', 's[1]: infectious', 's[2]: quarantined', 's[3]: recovereds']
@@ -67,6 +67,8 @@ def random_agent(iterations, env):
   #graphs(s,r)
   return s, r
 
+
+#The random agent makes random decisions at every given opportunity 
 def __random_agent(env):
   states = []
   rewards = []
@@ -80,6 +82,8 @@ def __random_agent(env):
       rewards.append(r)
   return states, rewards
 
+
+#Averages the results of the random agents against the number of specified iterations
 def avg_random(iterations, env):
   cumulative_s = []
   cumulative_r = []
