@@ -43,7 +43,7 @@ from keras import initializers
 
 
 from gym.envs.toy_text import discrete
-
+#Prints out the graphs which show the states values and rewards values agains the time in weeks
 def graphs(states,rewards):  
   fig, axes = plt.subplots(1, 2, figsize=(20, 8))
   labels = ['s[0]: susceptibles', 's[1]: infectious', 's[2]: quarantined', 's[3]: recovereds']
@@ -57,9 +57,9 @@ def graphs(states,rewards):
   axes[1].set_title('Reward')
   axes[1].set_xlabel('weeks since start of epidemic')
   axes[1].set_ylabel('reward r(t)')
-
+  #Prints the total reward
   print('total reward', np.sum(rewards))
-
+#Runs the agent in the enviroment by choosing the same specific action every time
 def __deterministic_agent(action, env):
   states = []
   rewards = []
