@@ -61,7 +61,7 @@ def graphs(states,rewards):
 
   print('total reward', np.sum(rewards))
 
-
+#Returns the usable values for state and action
 def random_agent(iterations, env):
   s,r = avg_random(iterations, env)
   #graphs(s,r)
