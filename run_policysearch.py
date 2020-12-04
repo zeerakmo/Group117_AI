@@ -48,6 +48,7 @@ from gym.envs.toy_text import discrete
 
 import pandas as pd
 EpisodeStats = namedtuple("Stats",["episode_lengths", "episode_rewards"])
+#Graphs the reward and states against each week
 def graphs(states,rewards):  
   fig, axes = plt.subplots(1, 2, figsize=(20, 8))
   labels = ['s[0]: susceptibles', 's[1]: infectious', 's[2]: quarantined', 's[3]: recovereds']
@@ -211,10 +212,7 @@ def reinforce(env, estimator_policy, num_episodes, state_space, discount_factor=
     Transition = collections.namedtuple("Transition", ["state", "action", "reward", "next_state", "done"])
     states = []
     rewards = []
-    # a = np.mgrid[0:6, 0:50, 0:50, 0:6]    
-    # a = np.rollaxis(a, 0, 5)       
-    # a = a.reshape((6*50*50*6 , 4))
-    # b = np.unique(a, axis=1)
+
     for i_episode in range(num_episodes):
         # Reset the environment and pick the fisrst action
         state = env.reset()
@@ -224,13 +222,13 @@ def reinforce(env, estimator_policy, num_episodes, state_space, discount_factor=
         
         # One step in the environment
         for t in itertools.count():
-            
+            #Place the states in the corresponding bins
             # Take a step
             s_indice_0 = np.digitize(state[0],s0bins)
             s_indice_1 = np.digitize(state[1],s1bins)
             s_indice_2 = np.digitize(state[2],s2bins)
             s_indice_3 = np.digitize(state[3],s3bins)
-
+            #Pad the values with a 0 to refer to them correctly
             if len(str(s_indice_0))==1:
               x0 = "0"+str(s_indice_0)
             if len(str(s_indice_1))==1:
@@ -240,33 +238,17 @@ def reinforce(env, estimator_policy, num_episodes, state_space, discount_factor=
             if len(str(s_indice_3))==1:
               x3 = "0"+str(s_indice_3)
 
-
+            #Create the string representation of the bin indices
             s = x0+x1+x2+x3
-            # s = [s_indice_0,s_indice_1,s_indice_2,s_indice_3]
-            # s = str(s_indice_0) +str(s_indice_1) +str(s_indice_2) +str(s_indice_3)
-            # for i,x in enumerate(b):
-            #   if np.array_equal(x,s):
-            #     # print(i)
-            #     state_oh = np.zeros((1,1296))
-            #     state_oh[0,i] = 1.0  
+            #One hot enocde the values for the specific unique one hot encoding
             value = oh_dict[s]
             state_oh = np.zeros((1,state_space))
             state_oh[0,value] = 1.0 
-
-            # state_oh = to_categorical([s_indice_0])
-            # state_oh = [state_oh]
-            # print(state)
-            # print(state_oh)
-            # print(s_indice_0)
-
-            # state_oh = np.zeros((1,6))
-            # state_oh[0,s_indice_0] = 1.0                                   
+                               
             action_probs = estimator_policy.predict(state_oh)
             action_probs = action_probs.squeeze()
             action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
-            # print(action)
-            # print("2")
-            ##
+
             next_state, reward, done, _ = env.step(action)
             states.append(next_state)
             rewards.append(reward)
@@ -291,12 +273,7 @@ def reinforce(env, estimator_policy, num_episodes, state_space, discount_factor=
         estimator_policy.new_episode()
         new_theta=[]
         for t, transition in enumerate(episode):     
-            # s_indice_0 = np.digitize(state[0],bins)           
-            # state_oh = np.zeros((1,6))
-            # state_oh[0,s_indice_0] = 1.0 
-            # print(state)
-            # print(transition.state)
-            # print()
+            #Place the state values in the correct bins and pad the value with an extra 0 to ensure its correctly represented
 
             s_indice_0 = np.digitize(transition.state[0],s0bins)
             s_indice_1 = np.digitize(transition.state[1],s1bins)
@@ -312,11 +289,10 @@ def reinforce(env, estimator_policy, num_episodes, state_space, discount_factor=
             if len(str(s_indice_3))==1:
               x3 = "0"+str(s_indice_3)
 
-
+            
             s = x0+x1+x2+x3
     
-            # s = [s_indice_0,s_indice_1,s_indice_2,s_indice_3]
-            # s = str(s_indice_0) +str(s_indice_1) +str(s_indice_2) +str(s_indice_3)
+            #One hot encode the unique state representation 
             value = oh_dict[s]
             state_oh = np.zeros((1,state_space))
             state_oh[0,value] = 1.0 
@@ -352,15 +328,7 @@ def runpolicy(env):
       s_indice_1 = np.digitize(state[1],s1bins)
       s_indice_2 = np.digitize(state[2],s2bins)
       s_indice_3 = np.digitize(state[3],s3bins)
-      # s = [s_indice_0,s_indice_1,s_indice_2,s_indice_3]
-      # print(state)
-      # for i,x in enumerate(b):
-      #   if np.array_equal(x,s):
-      #     # print(b[i])
-      #     state_oh = np.zeros((1,1296))
-      #     state_oh[0,i] = 1.0
-  
-      # s = str(s_indice_0) +str(s_indice_1) +str(s_indice_2) +str(s_indice_3)
+   
 
       if len(str(s_indice_0))==1:
         x0 = "0"+str(s_indice_0)
@@ -377,12 +345,11 @@ def runpolicy(env):
       state_oh = np.zeros((1,n_states))
       state_oh[0,value] = 1.0
       
-
+      
       choices = policy_estimator.predict(state_oh)
       action_probs = choices.squeeze()
-      # print(choices)
-      # action = np.argmax(choices)
-    
+
+      #Choose an action depending on the probabilties for eaceh action for what state we are in
       action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
 
       state, r, done, i = env.step(action) # deterministic agent
@@ -401,8 +368,8 @@ def policy_execute(env, alpha = 0.001, discount_factor=0.99, episodes_number = 5
     s2bins=[]
     global s3bins
     s3bins=[]
+    #Create the bins with the specified interval values from the parameters 
     y=0
-
     for x in range(list_of_vals[0]):
         y+=math.ceil(600000000/list_of_vals[0])
         s0bins.append(y)
@@ -424,7 +391,7 @@ def policy_execute(env, alpha = 0.001, discount_factor=0.99, episodes_number = 5
 
     if test_env==None:
       test_env=env
-
+    #Create the array of unique state combinations
     global a 
     a = np.mgrid[0:list_of_vals[0], 0:list_of_vals[1], 0:list_of_vals[2], 0:list_of_vals[3]]     # All points in a 3D grid within the given ranges
     # a = a.reshape([1296,4])
@@ -432,7 +399,7 @@ def policy_execute(env, alpha = 0.001, discount_factor=0.99, episodes_number = 5
     a = a.reshape((list_of_vals[0]*list_of_vals[1]*list_of_vals[2]*list_of_vals[3] , 4))
     global b
     b = np.unique(a, axis=1)
-
+    #Implement the unique states as the keys in a dictionary whos values will point to their one hot encodings
     global oh_dict
     oh_dict={}
     for i,x in enumerate(b):
@@ -449,7 +416,6 @@ def policy_execute(env, alpha = 0.001, discount_factor=0.99, episodes_number = 5
             x2 = "0"+str(x[2])
         if len(str(x[3]))==1:
             x3 = "0"+str(x[3])
-        # combination = str(x[0]) + str(x[1]) + str(x[2]) + str(x[3])
         global combination 
         combination = x0+x1+x2+x3
 
@@ -457,7 +423,7 @@ def policy_execute(env, alpha = 0.001, discount_factor=0.99, episodes_number = 5
 
     from keras.utils import to_categorical
     # Instantiate a PolicyEstimator (i.e. the function-based approximation)
-    # alpha      = 0.001  
+   
     global n_actions 
     n_actions = 4
     global n_states
@@ -467,5 +433,5 @@ def policy_execute(env, alpha = 0.001, discount_factor=0.99, episodes_number = 5
     global policy_estimator
     policy_estimator = NeuralNetworkPolicyEstimator(alpha, n_actions, n_states, nn_config)
     stats, s, r = reinforce(env, policy_estimator, episodes_number, n_states, discount_factor)
-    # runpolicy(test_env)
+
     plot_episode_stats(stats, smoothing_window=25)
