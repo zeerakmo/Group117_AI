@@ -44,7 +44,7 @@ from keras import initializers
 
 from gym.envs.toy_text import discrete
 
-
+#Function for plotting the state values and rewards graphs
 def graphs(states,rewards):  
   fig, axes = plt.subplots(1, 2, figsize=(20, 8))
   labels = ['s[0]: susceptibles', 's[1]: infectious', 's[2]: quarantined', 's[3]: recovereds']
@@ -61,6 +61,8 @@ def graphs(states,rewards):
 
   print('total reward', np.sum(rewards))
 
+#Function to create the q table given parameters, initializes table with correct shape, creates lists of bins per state of correct size, iterates through
+#episodes and calculating new q values given the formula, updates state and reward
 def __qtable(env,num_episodes,learning_rate,discount_rate,exploration_rate,exploration_decay_rate,list_of_vals):
   # num_episodes = 2000
 
@@ -152,6 +154,8 @@ def __qtable(env,num_episodes,learning_rate,discount_rate,exploration_rate,explo
       rewards_all_episodes.append(rewards_current_episode)
   return q_table,rewards_all_episodes    
 
+
+#Function is a caller function, takes parameters and calls Q table constructor function as well as the graph to plot the convergence of reward
 def qtable(env,num_episodes = 100,learning_rate = 0.01,discount_rate = 0.8,exploration_rate = 0.8,exploration_decay_rate = 0.01,list_of_vals=[100,50,50,100]):
   # num_episodes = 100,learning_rate = 0.01,discount_rate = 0.8,exploration_rate = 0.8,exploration_decay_rate = 0.01,list_of_items=[100,50,50,100] 
   q_table,total_r = __qtable(env,num_episodes,learning_rate,discount_rate,exploration_rate,exploration_decay_rate,list_of_vals)
@@ -161,6 +165,7 @@ def qtable(env,num_episodes = 100,learning_rate = 0.01,discount_rate = 0.8,explo
   # s,r=run(q_table,env)
   # graphs(s,r)
 
+#Function called to actually run the agent and iterate through the Q table given the returned action
 def run(q_table, env):
   states = []
   rewards = []
@@ -184,6 +189,7 @@ def run(q_table, env):
   del q_table
   return states,rewards
  
+#Function for plotting the convergence graph of episode reward over time 
 def graphCon(rewards):
   import pandas as pd
   fig2 = plt.figure(figsize=(10,5))
