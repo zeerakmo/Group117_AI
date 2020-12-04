@@ -365,7 +365,7 @@ def rbf_execute(env, eta0=0.05, learning_rate="constant", num_episodes = 500, ep
 
   plot_episode_stats(stats, smoothing_window=25)
 
-
+#Executes the specified RBF policy and returns both the states and rewards so they can be plotted
 def run_rbfpolicy(env):
   states,rewards,actions = exec_policy(env, my_func_approximator,verbose = False)
   return states,rewards
